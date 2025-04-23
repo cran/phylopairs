@@ -15,8 +15,10 @@ data {
 
 parameters {
   vector[K] Coef; // coefficient vector to be estimated
-  real<lower=0> sigma_resid[model_type == 2 ? 0 : 1]; // standard deviation of residual errors (used only in models 1 and 3)
-  real<lower=0> sig2_scale[model_type == 2 || model_type == 3 ? 1 : 0]; // scaling parameter for phylo effects (used in models 2 and 3)
+  //real<lower=0> sigma_resid[model_type == 2 ? 0 : 1]; // standard deviation of residual errors (used only in models 1 and 3)
+  array[model_type == 2 ? 0 : 1] real<lower=0> sigma_resid; // standard deviation of residual errors (used only in models 1 and 3)
+  //real<lower=0> sig2_scale[model_type == 2 || model_type == 3 ? 1 : 0]; // scaling parameter for phylo effects (used in models 2 and 3)
+  array[model_type == 2 || model_type == 3 ? 1 : 0] real<lower=0> sig2_scale; // standard deviation of residual errors (used only in models 1 and 3)
   vector[model_type == 3 ? N : 0] pair_effects; // random effects (intercepts) for species pairs (used only in model 3)
 }
 

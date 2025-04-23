@@ -1,6 +1,6 @@
-#' twoterm.plmm.stan
+#' twoterm.lmm.stan
 #'
-#' @description Fits the two-term plmm model of Castillo (2007) in a Bayesian
+#' @description Fits the two-term lmm model of Castillo (2007) in a Bayesian
 #'   framework. Bayesian sampling is conducted in the Stan software via the 'rstan'  
 #'   package. Users supply vectors of observations and an ultrametric phylogenetic tree.
 #'   Users can alter parameters for model-parameter prior distributions and Bayesian sampling
@@ -14,7 +14,7 @@
 #'   covariance matrix C. In this model, \code{u1 ~ N(0,physig2*C)}, \code{u2 ~ N(0,physig2*C)}, and
 #'   \code{epsilon~N(0, randsig2*I)}, where randsig2 is the scaling parameter for identity 
 #'   matrix I and physig2 is the scaling parameter for phylogenetic covariance 
-#'   matrix C. See \code{twoterm_plmm_mats} for details on calculating 
+#'   matrix C. See \code{twoterm_lmm_mats} for details on calculating 
 #'   the Z1 and Z2 matrices. 
 #'
 #'   **Prior Distributions for Model Parameters**:
@@ -23,7 +23,7 @@
 #'   2. `physig2`: lognormal prior (users can set prior mean and sd)
 #'   3. `randsig2`: cauchy prior (users can set location and scale parameters of prior)
 
-#' @usage twoterm.plmm.stan(des, y, sp1s, sp2s, tree, 
+#' @usage twoterm.lmm.stan(des, y, sp1s, sp2s, tree, 
 #'   iter=2000, chains=4, coef.u=0, coef.sd=10, physig2.u=-1, 
 #'   physig2.sd=1, randsig2.loc=0, randsig2.sc=2.5, cores=4, ...)
 #'
@@ -43,7 +43,8 @@
 #' @param randsig2.loc Location parameter of the prior distribution (cauchy) for the scale of the independent component of residual covariance ; defaults to 0.
 #' @param randsig2.sc Scale parameter of the prior distribution (cauchy) for the scale of the independent component of residual covariance ; defaults to 2.5.
 #'
-#' @return A list containing two elements: (1) the posterior distribution of model parameters, and (2) the log-likelihood of the posteriors for use in downstream analyses (e.g. the calculation of model fitting metrics like loo or waic)
+#' @return A list containing two elements: (1) the posterior distribution of model parameters, and (2) the log-likelihood of the posteriors for use in downstream analyses (e.g. the calculation of model fitting metrics like loo or waic). For interpreting model parameters, note that \code{Coef[1]} is the intercept and \code{Coef[2]}, \code{Coef[3]}, ... , \code{Coef[N]} are regression coefficient for the 1st-Nth predictor variables. 
+
 #'
 #' @examples 
 #' \donttest{
@@ -53,8 +54,8 @@
 #' data(sim.tree1)
 #' # Fit an OLS model
 #' result1 = linreg.stan(des=data3[,3], y=data3[,4], cores=2)
-#' # Fit the twoterm.plmm.stan model
-#' result2 = twoterm.plmm.stan(des=data3[,3], y=data3[,4], sp1s=data3[,1], 
+#' # Fit the twoterm.lmm.stan model
+#' result2 = twoterm.lmm.stan(des=data3[,3], y=data3[,4], sp1s=data3[,1], 
 #'   sp2s=data3[,2], tree=sim.tree1, cores=2)
 #' # Compare posterior parameter estimates
 #' result1[[1]]
@@ -76,7 +77,7 @@
 #' Castillo, D. M. (2007). Factors contributing to the accumulation of reproductive isolation: A mixed model approach. Ecology and Evolution 7:5808-5820. doi.org/10.1002/ece3.3093
 
 #' @export
-twoterm.plmm.stan = function(des, y, sp1s, sp2s, tree, iter=2000, chains=4, coef.u=0, 
+twoterm.lmm.stan = function(des, y, sp1s, sp2s, tree, iter=2000, chains=4, coef.u=0, 
   coef.sd=10, physig2.u=-1, physig2.sd=1, randsig2.loc=0, randsig2.sc=2.5, cores=4, ...) {
   # Add an intercept column to design matrix if it's not already present
   if(!all(as.matrix(des)[,1]==1)) des=cbind(rep(1, length(y)), des)
@@ -85,16 +86,17 @@ twoterm.plmm.stan = function(des, y, sp1s, sp2s, tree, iter=2000, chains=4, coef
   # Ensure species 1s and species 2s are actually in the tree
   if (any(!sp1s %in% tree$tip.label) | any(!sp2s %in% tree$tip.label)) stop("sps1s and/or sps2s are missing from the tree \n check to ensure the formatting of the names in sp1s and sp2s matches that used in the tree tip.label component")
   # Calculate necessary identity and covariance matrices
-  mats = twoterm.plmm.mats(sp.pairs=cbind(sp1s, sp2s), tree=tree)
+  mats = twoterm.lmm.mats(sp.pairs=cbind(sp1s, sp2s), tree=tree)
   # Ensure covariance matrices are valid
-  if(suppressWarnings(!all(sapply(mats[3:4], covmat.check)))) stop("at least one invalid covariance matrix calculated; see twoterm_plmm_mats function ")
+  if(suppressWarnings(!all(sapply(mats[3:4], covmat.check)))) stop("at least one invalid covariance matrix calculated; see twoterm_lmm_mats function ")
   # Prep stan data
   stan.dat = list(N=length(y), M=length(unique(sp1s)), P=length(unique(sp2s)), K=ncol(des), Y=y, X=des, C1=mats[[3]], C2=mats[[4]], Z1=mats[[1]], Z2=mats[[2]], 
     coef_mean=coef.u, coef_sd=coef.sd, sig2_mean=physig2.u, sig2_sd=physig2.sd, sig2_loc=randsig2.loc, sig2_sc=randsig2.sc)
   # Fit the model
-  fit = sampling(object = stanmodels$twoterm_plmm, data = stan.dat, iter = iter, chains = chains, cores=cores, ...)
+  fit = sampling(object = stanmodels$twoterm_lmm, data = stan.dat, iter = iter, chains = chains, cores=cores, ...)
   # Get the parameters from the summary
-  pars = round(rstan::summary(fit)$summary,2)[c(1:4,dim(fit)[3]),]
+  m=ncol(des)
+  pars = round(rstan::summary(fit)$summary,2)[c(1:(m+3),dim(fit)[3]),]
   ll = loo::extract_log_lik(fit, parameter_name = "loglik")
   # Package and return the results list
   res = list(pars=pars, ll=ll)

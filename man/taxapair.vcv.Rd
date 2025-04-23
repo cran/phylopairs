@@ -16,7 +16,7 @@ taxapair.vcv(sp.pairs, tree, spnames=FALSE, dec=2, model="sq.diff",
 
 \item{dec}{Number of decimal places to round the values in the matrix; defaults to 2.}
 
-\item{model}{One of 'sq.diff', 'sq.sum', 'simple.sum', and 'product'. Defaults to 'sq.diff'. See details.}
+\item{model}{One of 'sq.diff', 'sq.sum', 'simple.sum', 'product', or 'abs.diff'. Defaults to 'sq.diff'. See details.}
 
 \item{regularize}{Logical indicating whether regularization should be used if resulting matrix is numerically singular; defaults to FALSE. If TRUE, regularization is conducted by adding a small value to the diagonal of the matrix. By default, this value is equal to 1\% of the median value on the diagonal, which is continually added until matrix is no longer numerically singular.}
 
@@ -45,7 +45,7 @@ that is defined for each taxon and that has phylogenetic signal. Users can choos
 one of four models by which signal in X generates covariance among pairs in a
 lineage-pair trait:
 \enumerate{
-\item sq.diff (default) -- the lineage-pair trait is influenced by the absolute
+\item sq.diff (default) -- the lineage-pair trait is influenced by the square of the
 difference between the two taxa in X.
 \item sq.sum -- the lineage-pair trait is linearly by the squared sum of
 the value of X in each taxon.
@@ -54,10 +54,14 @@ the value of X in each taxon. IMPORTANT: this model tends to result in
 a singular matrix.
 \item product -- the lineage-pair trait is influenced by the product of the
 the value of X in each taxon.
+\item abs.diff -- the lineage-pair trait is influenced by the absolute difference
+difference between the two taxa in X.
 }
 
 In each case, it is assumed that there is a linear relationship between
 the value calculated in each model and the response variable.
+
+Note that simple.sum and abs.diff typically result in invalid covariance matrices, so use caution.
 }
 \examples{
 library(ape)

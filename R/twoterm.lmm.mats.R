@@ -1,6 +1,6 @@
-#' twoterm.plmm.mats
+#' twoterm.lmm.mats
 #'
-#' @description Calculates the four matrices required for fitting the two-term plmm model
+#' @description Calculates the four matrices required for fitting the two-term lmm model
 #'   of Castillo (2007). See details.
 #'
 #' @details Castillo (2007) introduced a framework for analyzing lineage-pair data via an
@@ -22,7 +22,7 @@
 #'   the tree from which they are derived, as the latter could result in the covariance 
 #'   between two species being different for the 'species 1' and 'species 2' random effects. 
 #'
-#' @usage twoterm.plmm.mats(sp.pairs, tree)
+#' @usage twoterm.lmm.mats(sp.pairs, tree)
 #'
 #' @param sp.pairs A table (matrix or data.frame) in which the first column contains the names of 'species 1' and the second column contains the names of 'species 2'. Names must be in the same format used in the phylogenetic tree. 
 #' @param tree An ultrametric phylogenetic tree ('phylo' object) describing the relationships among the species that appear in the dataset (as either a species 1 or species 2 or both). 
@@ -36,7 +36,7 @@
 #' # Generate lineage pairs as the pairwise combinations of species in the tree
 #' lin.pairs = data.frame(t(combn(lin.tree$tip.label,2))); colnames(lin.pairs)=c("sp1", "sp2")
 #' # Calculate the matrices
-#' mats = twoterm.plmm.mats(sp.pairs=lin.pairs, tree=lin.tree)
+#' mats = twoterm.lmm.mats(sp.pairs=lin.pairs, tree=lin.tree)
 #' # Check structure of design matrices
 #' sapply(mats, dim)
 #' head(mats$Z1[,1:5])
@@ -50,7 +50,7 @@
 #' Castillo, D. M. (2007). Factors contributing to the accumulation of reproductive isolation: A mixed model approach. Ecology and Evolution 7:5808-5820. doi.org/10.1002/ece3.3093
 
 #' @export
-twoterm.plmm.mats = function(sp.pairs, tree) {
+twoterm.lmm.mats = function(sp.pairs, tree) {
   # will orient the columns in Z to line up with the phylogenetic covariance matrix
   vc.mat = ape::vcv(tree)
   Z1=Z2=matrix(0, nrow(sp.pairs), ncol(vc.mat))

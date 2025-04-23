@@ -14,12 +14,12 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 RcppExport SEXP _rcpp_module_boot_stan_fit4betareg_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4linreg_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4twoterm_plmm_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4twoterm_lmm_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4betareg_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4betareg_mod, 0},
     {"_rcpp_module_boot_stan_fit4linreg_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4linreg_mod, 0},
-    {"_rcpp_module_boot_stan_fit4twoterm_plmm_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4twoterm_plmm_mod, 0},
+    {"_rcpp_module_boot_stan_fit4twoterm_lmm_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4twoterm_lmm_mod, 0},
     {NULL, NULL, 0}
 };
 

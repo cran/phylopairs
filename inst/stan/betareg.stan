@@ -1,3 +1,6 @@
+// This program runs beta regression 
+// It takes an option (model==1 or model==2) and performs standard beta regression or beta mixed model regression, respectively
+
 data {
   int<lower=0> N; // Number of observations (lineage pairs)
   int<lower=0> K; // Number of predictors, including the intercept
@@ -11,13 +14,14 @@ data {
   real sig2_mean; // mean of the lognormal prior on sig2_scale
   real sig2_sd; // sd of the lognormal prior on sig2_scale
   int<lower=1, upper=4> link_choice; // 1 = logit, 2 = probit, 3 = cloglog, 4 = loglog
-  int<lower=1, upper=2> model_type; // 1 = beta.ols, 2 = beta.mm
+  int<lower=1, upper=2> model_type; // 1 = beta.reg, 2 = beta.mm
 }
 
 parameters {
   vector[K] Coef; // coefficient vector to be estimated
   real<lower=0> phi; // precision parameter for beta distribution
-  real<lower=0> sig2_scale[model_type == 2 ? 1 : 0]; // scaling parameter for variance in species-specific effects
+  //real<lower=0> sig2_scale[model_type == 2 ? 1 : 0]; // scaling parameter for variance in species-specific effects
+  array[model_type == 2 ? 1 : 0] real<lower=0> sig2_scale; // scaling parameter for variance in species-specific effects
   vector[model_type == 2 ? N : 0] pair_effects; // random effects (intercepts) for species pairs
 }
 
@@ -47,7 +51,7 @@ model {
     mu = inv_logit(eta); // logit link
   } else if (link_choice == 2) {
     for (n in 1:N) {
-      mu[n] = normal_cdf(eta[n], 0, 1); // probit link
+      mu[n] = normal_cdf(eta[n] | 0, 1); // probit link
     }
   } else if (link_choice == 3) {
     mu = 1 - exp(-exp(eta)); // cloglog link
@@ -68,7 +72,7 @@ generated quantities {
     mu = inv_logit(eta); // logit link
   } else if (link_choice == 2) {
     for (n in 1:N) {
-      mu[n] = normal_cdf(eta[n], 0, 1); // probit link
+      mu[n] = normal_cdf(eta[n] | 0, 1); // probit link
     }
   } else if (link_choice == 3) {
     mu = 1 - exp(-exp(eta)); // cloglog link

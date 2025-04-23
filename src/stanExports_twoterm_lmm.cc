@@ -2,12 +2,12 @@
 
 #include <Rcpp.h>
 using namespace Rcpp ;
-#include "stanExports_twoterm_plmm.h"
+#include "stanExports_twoterm_lmm.h"
 
-RCPP_MODULE(stan_fit4twoterm_plmm_mod) {
+RCPP_MODULE(stan_fit4twoterm_lmm_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_twoterm_plmm")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_twoterm_lmm")
 
     .constructor<SEXP,SEXP,SEXP>()
 

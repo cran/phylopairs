@@ -4,16 +4,16 @@
 \alias{betareg.stan}
 \title{betareg.stan}
 \usage{
-betareg.stan(des, y, model="beta.ols", link="logit", covmat=NULL, 
+betareg.stan(des, y, model="beta.reg", link="logit", covmat=NULL, 
   iter=2000, chains=4, coef.u=0, coef.sd=10, phi.shape=0.01, phi.rate=0.01,
   physig2.u=-1, physig2.sd=1, cores=4, ...)
 }
 \arguments{
 \item{des}{A vector of predictor variable observations OR, in the case of multiple predictors, a matrix in which each column is a vector of observations of a given predictor. \code{betareg.stan()} adds a column of 1s to make this a design matrix whose first column corresponds to the model intercept (unless such a column already exists).}
 
-\item{y}{One of "beta.ols" or "beta.mm" for a basic beta regression model or beta mixed model, respectively; defaults to "beta.ols".}
+\item{y}{A vector of response variable observations.}
 
-\item{model}{A vector of response variable observations.}
+\item{model}{One of "beta.reg" or "beta.mm" for a basic beta regression model or beta mixed model, respectively; defaults to "beta.reg".}
 
 \item{link}{The link function to be used. Default is "logit". Other possible choices are "probit", "cloglog" (complementary log-log), and "loglog".}
 
@@ -35,12 +35,12 @@ betareg.stan(des, y, model="beta.ols", link="logit", covmat=NULL,
 
 \item{physig2.sd}{SD of the lognormal prior for the scale of the residual covariance; defaults to 1.}
 
-\item{cores}{Number of cores to be used; defaults to 4 (one chain per core).}
+\item{cores}{Number of cores to be used; defaults to 4 (one chain per core for most laptops).}
 
 \item{...}{additional arguments passed to \code{rstan::sampling}, including control parmeters (see rstan::sampling documentation)}
 }
 \value{
-A list containing two elements: (1) the posterior distribution of model parameters, and (2) the log-likelihood of the posteriors for use in downstream analyses (e.g. the calculation of model fitting metrics like loo or waic)
+A list containing two elements: (1) the posterior distribution of model parameters, and (2) the log-likelihood of the posteriors for use in downstream analyses (e.g. the calculation of model fitting metrics like loo or waic). For interpreting model parameters, note that \code{Coef[1]} is the intercept and \code{Coef[2]}, \code{Coef[3]}, ... , \code{Coef[N]} are regression coefficient for the 1st-(N-1)th predictor variables.
 }
 \description{
 Fits one of two beta regression models to a dataset in a Bayesian
@@ -55,14 +55,14 @@ model-parameter prior distributions and Bayesian sampling settings. See details.
 The two models that can be chosen differ in terms of their linear predictor
 on the scale of the link function. These predictors are
 \enumerate{
-\item Simple beta regression: \code{g(u) = XB}
+\item Standard beta regression: \code{g(u) = XB}
 \item Beta mixed-effects regression: \code{g(u) = XB + u, u~N(0, physig2*C)}, where C is a
 lineage-pair covariance matrix (if analyzing lineage-pair data) or a
 phylogenetic vcv matrix (if analyzing species data) and physig2 is the
 scaling parameter for C.
 }
 
-\strong{NOTE}: For model 2, the user must supply a covariance matrix.
+\strong{NOTE}: For model 2, the user must supply a covariance matrix. These are generated with the 'taxapair.vcv' function.
 
 \strong{Prior Distributions for Model Parameters}:
 The underlying stan models assume the following prior distributions for model

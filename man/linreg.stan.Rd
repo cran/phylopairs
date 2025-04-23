@@ -13,7 +13,7 @@ linreg.stan(des, y, model="ols", covmat=NULL, iter=2000,
 
 \item{y}{A vector of response variable observations.}
 
-\item{model}{Choice of "ols", "pgls", or "pgls.mm"; defaults to ols.}
+\item{model}{Choice of "ols", "pgls", or "lp.gls"; defaults to ols.}
 
 \item{covmat}{Covariance matrix for model residuals (a lineage-pair covariance matrix if analyzing lineage-pair data or a phylogenetic vcv matrix if analyzing species data).}
 
@@ -38,7 +38,7 @@ linreg.stan(des, y, model="ols", covmat=NULL, iter=2000,
 \item{...}{additional arguments passed to \code{rstan::sampling()}, including control parmeters (see \code{rstan::sampling()} documentation)}
 }
 \value{
-A list containing two elements: (1) the posterior distribution of model parameters, and (2) the log-likelihood of the posteriors for use in downstream analyses (e.g. the calculation of model fitting metrics like loo or waic)
+A list containing two elements: (1) the posterior distribution of model parameters, and (2) the log-likelihood of the posteriors for use in downstream analyses (e.g. the calculation of model fitting metrics like loo or waic). For interpreting model parameters, note that \code{Coef[1]} is the intercept and \code{Coef[2]}, \code{Coef[3]}, ... , \code{Coef[N]} are regression coefficient for the 1st-(N-1)th predictor variables.
 }
 \description{
 Fits one of three models of linear regression to a dataset in a Bayesian
@@ -59,9 +59,9 @@ matrix (if analyzing lineage-pair data) or a phylogenetic vcv matrix
 (if analyzing species data).
 
 \code{Y = XB + epsilon}; where \code{epsilon~N(0,physig2*C)} and physig2 is the scaling parameter for covariance matrix C.
-\item "pgls.mm" a mixed-effects version of pgls in which the residuals have both
+\item "lp.gls" a mixed-effects version of pgls in which the residuals have both
 uncorrelated and correlated components, where the latter are structured according
-to covariance matrix C.
+to covariance matrix C. This is the 'lp.gls' model from Anderson et al. 2025 (In Revision).
 
 \code{Y = XB + epsilon + u}; where \code{epsilon~N(0,randsig2*I)} and \code{u~N(0,physig2*C)}.
 }
@@ -106,8 +106,8 @@ waic2
 loo::loo_compare(loo1, loo2)
 loo::loo_compare(waic1, waic2)
 
-# Extend the comparison by fitting a pgls.mm model
-result3 = linreg.stan(des=data3[,3], y=data3[,4], model="pgls.mm", 
+# Extend the comparison by fitting a lp.gls model
+result3 = linreg.stan(des=data3[,3], y=data3[,4], model="lp.gls", 
  covmat=sim.cov.pairs, cores=2)
 
 # Compare posterior parameter estimates
